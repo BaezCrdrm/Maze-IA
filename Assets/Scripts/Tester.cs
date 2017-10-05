@@ -212,7 +212,7 @@ public class Tester : Entity {
 #region Stage functions
     private Direction[] ScanFromPosition(Node _node)
 	{
-		gameObject.transform.position = _node.Waypoint.transform.position;
+		//gameObject.transform.position = _node.Waypoint.transform.position;
         Direction[] _directions = _node.Directions;
 		foreach (Camera cam in cameras)
 		{
