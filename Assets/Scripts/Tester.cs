@@ -24,7 +24,6 @@ public class Tester : Entity {
 
 	// 	Temporal/Control
 	private int _id = 1;
-	// Replaces _createNode from last project
 	private int stage;
 	Direction movementDirection;
 
@@ -33,33 +32,33 @@ public class Tester : Entity {
 	List<Camera> cameras;
 	Direction[] CanMove;
 	float nodeDistance = 0f;
+    float finishNodeDistance = 0f;
     int delay;
     bool OpenChildStage = true;
 
-    #region Unity
+#region Unity
     void Start () {
 		controller = GetComponent<PlayerController>();
 		Init();        
 	}
 	
 	void Update () {
-		
-		if(open.Count == 0)
-        {
-			nodeDistance = Vector3.Distance(gameObject.transform.position, 
+        finishNodeDistance = Vector3.Distance(gameObject.transform.position,
                 _targetNode.Waypoint.transform.position);
+        if (open.Count == 0)
+        {			
+            nodeDistance = finishNodeDistance;
         }
         else {
 			nodeDistance = Vector3.Distance(gameObject.transform.position, 
                 open[0].Waypoint.transform.position);
         }
+                
 
         if (delay >= delayTime)
         {
             if (training)
             {
-                training = CheckDistanceToTarget(nodeDistance);
-                //Vector3 tempObjectPosition = Visited[Visited.Count - 1].Waypoint.transform.position;
                 Node tempNode = Visited[Visited.Count - 1];
                 /// Stages
                 /// 1. Scan
@@ -69,6 +68,7 @@ public class Tester : Entity {
 
                 /// 4. Open nodes
                 /// 5. Visit nodes
+                /// 6. Stop
                 switch (stage)
                 {
                     case 1:
@@ -97,39 +97,47 @@ public class Tester : Entity {
                                 break;
                             }
                         }
-                        
-                        Camera _tempCam = GetCamera(movementDirection);
-                        float _collisionDistance = GetDistance(_tempCam);
-                        if (_collisionDistance > 0.5f)
+
+                        if (movementDirection != null)
                         {
-                            SelfMovement(movementDirection);
-                            OpenChildStage = true;
+                            Camera _tempCam = GetCamera(movementDirection);
+                            float _collisionDistance = GetDistance(_tempCam);
+                            if (_collisionDistance > 0.5f)
+                            {
+                                SelfMovement(movementDirection);
+                                OpenChildStage = true;
+                            }
+                            else
+                            {
+                                stage = 3;
+                                CanMove[index].Value = false;
+                            }
                         }
                         else
-                        {
-                            stage = 3;
-                            CanMove[index].Value = false;
-                            //for(int j = 0; j < CanMove.Length; j++)
-                            //{
-                            //	if(CanMove[j].Name == movementDirection.Name)
-                            //		CanMove[j].Value = false;
-                            //}
-                        }
+                            stage = 6;
                         break;
 
                     case 3:
-                        if (OpenChildStage == true)
+                        if (finishNodeDistance > minObjectiveDistance)
                         {
-                            OpenChild(Visited[Visited.Count - 1], movementDirection);
-                            MoveGameObjectTo(gameObject.transform.position = Visited[Visited.Count - 1].Waypoint.transform.position, height);
+                            if (OpenChildStage == true)
+                            {
+                                OpenChild(Visited[Visited.Count - 1], movementDirection);
+                                MoveGameObjectTo(Visited[Visited.Count - 1].Waypoint.transform.position, height);
 
-                            stage = 4;
+                                stage = 4;
+                                delay = 0;
+                                OpenChildStage = false;
+                            }
+                        }
+                        else
+                        {                            
+                            stage = 6;
                             delay = 0;
-                            OpenChildStage = false;
-                        }                           
+                        }
                         break;
-                        
-                    case 4:                        
+
+                    case 4:
                         for (int j = 0; j < Visited[Visited.Count - 1].Directions.Length; j++)
                         {
                             if (Visited[Visited.Count - 1].Directions[j].Value == true)
@@ -141,32 +149,38 @@ public class Tester : Entity {
                                 stage = 5;
                         }
                         OpenChildStage = false;
+                        delay = 0;
                         break;
 
                     case 5:
-                        Debug.Log("Stop");
+                        Debug.Log("Visit new node");
                         OpenChildStage = true;
+                        if (open.Count > 0)
+                        {
+                            VisitNewNode();
+                            stage = 1;
+                        }
+                        //else
+                        //    stage = 6;
+                        delay = 0;
+                        CanMove = null;
+                        movementDirection = null;
                         break;
 
-                    // case 6:
-                    // 	break;
+                    case 6:
+                        //OpenChild(Visited[Visited.Count - 1]);
+                        //VisitNewNode();
+                        MoveGameObjectTo(EndingPoint.transform.position, height);
+                        Debug.Log("Finito");
+                        //stage = 7;
+                        training = false;
+                        break;
                 }
             }
         }
         else
             delay++;
-	}
-
-    private void OpenChild(Node _parent, Direction _direction)
-    {
-		Node _child = new Node(_id, CreateWaypoint(), _parent, _direction);
-		UpdateNewNodeId();
-        _child.Directions = ScanFromPosition(_child);		
-		open.Add(_child);
-
-        _parent.UpdateNodeDirectionRestriction(_direction);
-        Debug.Log("Child open");
-    }
+	}   
 
     private GameObject CreateWaypoint()
     {
@@ -178,12 +192,36 @@ public class Tester : Entity {
         };
         gobj.transform.position = gameObject.transform.position + Vector3.down * gameObject.transform.position.y;
         StopMovement(gobj);
-		gameObject.transform.position = gobj.transform.position;
-		return gobj;
+        gameObject.transform.position = gobj.transform.position;
+        return gobj;
+    }
+
+    private void OpenChild(Node _parent, Direction _direction)
+    {
+		Node _child = new Node(_id, CreateWaypoint(), _parent, _direction);
+		UpdateNewNodeId();
+		open.Add(_child);
+
+        _parent.UpdateNodeDirectionRestriction(_direction);
+        Debug.Log("Child open");
+    }
+
+    private void OpenChild(Node _parent)
+    {
+        Node _child = new Node(_id, CreateWaypoint(), _parent);
+        UpdateNewNodeId();
+        open.Add(_child);
+    }
+
+    private void VisitNewNode()
+    {
+        Visited.Add(open[0]);
+        open.RemoveAt(0);
+        MoveGameObjectTo(Visited[Visited.Count - 1].Waypoint.transform.position, height);
     }
     #endregion
 
-#region Init functions
+    #region Init functions
     private void Init()
 	{
 		stage = 1;
@@ -203,9 +241,9 @@ public class Tester : Entity {
 
 	private void InitDirections()
     {
-        Node tempNode = new Node(new GameObject("temp"));
-        CanMove = tempNode.Directions;
-		tempNode = null;
+        Node _tempNode = new Node(new GameObject("temp"));
+        CanMove = _tempNode.Directions;
+		_tempNode = null;
     }
 #endregion
 
@@ -217,7 +255,7 @@ public class Tester : Entity {
 		foreach (Camera cam in cameras)
 		{
 			float _distance = GetDistance(cam);
-			if(_distance > minObjectiveDistance)
+			if(_distance > minObjectiveDistance && _distance != 0)
 			{
 				switch(cam.name)
 				{
@@ -333,7 +371,7 @@ public class Tester : Entity {
 		Debug.DrawRay(_camera.transform.position, direction, Color.red);
 		if(Physics.Raycast(fwdRay, out hit))
 		{
-			Debug.Log(_camera.name.ToString() + ": " + hit.distance.ToString());
+			//Debug.Log(_camera.name.ToString() + ": " + hit.distance.ToString());
 		}
 		return hit.distance;
 	}
