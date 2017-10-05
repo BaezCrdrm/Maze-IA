@@ -102,7 +102,7 @@ public class Tester : Entity {
                         {
                             Camera _tempCam = GetCamera(movementDirection);
                             float _collisionDistance = GetDistance(_tempCam);
-                            if (_collisionDistance > 0.5f)
+                            if (_collisionDistance > 0.51f)
                             {
                                 SelfMovement(movementDirection);
                                 OpenChildStage = true;
