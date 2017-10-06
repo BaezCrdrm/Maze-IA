@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent (typeof(PlayerController))]
 public class Tester : Entity {
 	// Editor configuration
-	public float speed = 5;
+	public float speed = 1;
 	public float movementDistance = 1f;
 	public float height = 0.25f;
 
@@ -15,7 +15,6 @@ public class Tester : Entity {
 	public float minObjectiveDistance = 1.2f;
 
 	public bool training = true;
-
     public int delayTime = 20;
 
 	// Local
@@ -31,7 +30,6 @@ public class Tester : Entity {
 	PlayerController controller;
 	List<Camera> cameras;
 	Direction[] CanMove;
-	float nodeDistance = 0f;
     float finishNodeDistance = 0f;
     int delay;
     bool OpenChildStage = true;
@@ -44,16 +42,7 @@ public class Tester : Entity {
 	
 	void Update () {
         finishNodeDistance = Vector3.Distance(gameObject.transform.position,
-                _targetNode.Waypoint.transform.position);
-        if (open.Count == 0)
-        {			
-            nodeDistance = finishNodeDistance;
-        }
-        else {
-			nodeDistance = Vector3.Distance(gameObject.transform.position, 
-                open[0].Waypoint.transform.position);
-        }
-                
+                _targetNode.Waypoint.transform.position);                
 
         if (delay >= delayTime)
         {
@@ -79,6 +68,7 @@ public class Tester : Entity {
                         break;
 
                     case 2:
+                        bool _outsideLimits = false;
                         int index = 0;
                         for (index = 0; index < CanMove.Length; index++)
                         {
@@ -94,6 +84,7 @@ public class Tester : Entity {
                             {
                                 Debug.LogError("Outside the limits...?");
                                 movementDirection = null;
+                                _outsideLimits = true;
                                 break;
                             }
                         }
@@ -102,7 +93,7 @@ public class Tester : Entity {
                         {
                             Camera _tempCam = GetCamera(movementDirection);
                             float _collisionDistance = GetDistance(_tempCam);
-                            if (_collisionDistance > 0.5f)
+                            if (_collisionDistance > 0.51f)
                             {
                                 SelfMovement(movementDirection);
                                 OpenChildStage = true;
@@ -114,7 +105,12 @@ public class Tester : Entity {
                             }
                         }
                         else
-                            stage = 6;
+                        {
+                            if (_outsideLimits == true)
+                                stage = 6;
+                            else
+                                stage = 5;
+                        }
                         break;
 
                     case 3:
@@ -168,11 +164,10 @@ public class Tester : Entity {
                         break;
 
                     case 6:
-                        //OpenChild(Visited[Visited.Count - 1]);
-                        //VisitNewNode();
+                        Visited.Add(_targetNode);
                         MoveGameObjectTo(EndingPoint.transform.position, height);
+                        Debug.Log("Numero de nodos: " + Visited.Count.ToString());
                         Debug.Log("Finito");
-                        //stage = 7;
                         training = false;
                         break;
                 }
@@ -180,48 +175,10 @@ public class Tester : Entity {
         }
         else
             delay++;
-	}   
+	}
+#endregion
 
-    private GameObject CreateWaypoint()
-    {
-        Debug.Log("Set a waypoint");
-        GameObject gobj = new GameObject
-        {
-            name = "Waypoint",
-            tag = "Waypoint"
-        };
-        gobj.transform.position = gameObject.transform.position + Vector3.down * gameObject.transform.position.y;
-        StopMovement(gobj);
-        gameObject.transform.position = gobj.transform.position;
-        return gobj;
-    }
-
-    private void OpenChild(Node _parent, Direction _direction)
-    {
-		Node _child = new Node(_id, CreateWaypoint(), _parent, _direction);
-		UpdateNewNodeId();
-		open.Add(_child);
-
-        _parent.UpdateNodeDirectionRestriction(_direction);
-        Debug.Log("Child open");
-    }
-
-    private void OpenChild(Node _parent)
-    {
-        Node _child = new Node(_id, CreateWaypoint(), _parent);
-        UpdateNewNodeId();
-        open.Add(_child);
-    }
-
-    private void VisitNewNode()
-    {
-        Visited.Add(open[0]);
-        open.RemoveAt(0);
-        MoveGameObjectTo(Visited[Visited.Count - 1].Waypoint.transform.position, height);
-    }
-    #endregion
-
-    #region Init functions
+#region Init functions
     private void Init()
 	{
 		stage = 1;
@@ -280,10 +237,40 @@ public class Tester : Entity {
         return _directions;
 	}
 
-#endregion	
+    private GameObject CreateWaypoint()
+    {
+        Debug.Log("Set a waypoint");
+        GameObject gobj = new GameObject
+        {
+            name = "Waypoint",
+            tag = "Waypoint"
+        };
+        gobj.transform.position = gameObject.transform.position + Vector3.down * gameObject.transform.position.y;
+        StopMovement(gobj);
+        gameObject.transform.position = gobj.transform.position;
+        return gobj;
+    }
+
+    private void OpenChild(Node _parent, Direction _direction)
+    {
+        Node _child = new Node(_id, CreateWaypoint(), _parent, _direction);
+        UpdateNewNodeId();
+        open.Add(_child);
+
+        _parent.UpdateNodeDirectionRestriction(_direction);
+        Debug.Log("Child open");
+    }
+
+    private void VisitNewNode()
+    {
+        Visited.Add(open[0]);
+        open.RemoveAt(0);
+        MoveGameObjectTo(Visited[Visited.Count - 1].Waypoint.transform.position, height);
+    }
+#endregion
 
 #region Movement functions
-	void MoveGameObjectTo(Vector3 position, float _height)
+    void MoveGameObjectTo(Vector3 position, float _height)
 	{
 		gameObject.transform.position = position + Vector3.up * _height;
 	}
@@ -371,6 +358,7 @@ public class Tester : Entity {
 		Debug.DrawRay(_camera.transform.position, direction, Color.red);
 		if(Physics.Raycast(fwdRay, out hit))
 		{
+            /// Show camera distance in Log
 			//Debug.Log(_camera.name.ToString() + ": " + hit.distance.ToString());
 		}
 		return hit.distance;
@@ -410,23 +398,23 @@ public class Tester : Entity {
 		return cameras.Find(p => p.name == cameraName);
 	}
 
-	private int GetWaysCount(Direction[] _directions)
-	{
-		int j = 0;
-		for(int i = 0; i < _directions.Length; i++)
-		{
-			if(_directions[i].Value == true)
-				j++;
-		}
-		return j;
-	}
+    private int GetWaysCount(Direction[] _directions)
+    {
+        int j = 0;
+        for (int i = 0; i < _directions.Length; i++)
+        {
+            if (_directions[i].Value == true)
+                j++;
+        }
+        return j;
+    }
 
-	/// <summary>
-	/// <para>Check if the selected node is on a node list.</para>
-	/// <param name="node">Node match</param>
-	/// </summary>	
-	/// <return>Bool. True in case the node is on the list.</return>
-	private bool CheckNodeOnList(List<Node> nodes, Node node)
+    /// <summary>
+    /// <para>Check if the selected node is on a node list.</para>
+    /// <param name="node">Node match</param>
+    /// </summary>	
+    /// <return>Bool. True in case the node is on the list.</return>
+    private bool CheckNodeOnList(List<Node> nodes, Node node)
 	{		
 		if (nodes.Find(p => p == node) == null)
 			return false;
