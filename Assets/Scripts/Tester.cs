@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent (typeof(PlayerController))]
 public class Tester : Entity {
 	// Editor configuration
-	public float speed = 1;
+	//public float speed = 1;
 	public float movementDistance = 1f;
 	public float height = 0.25f;
 
@@ -25,14 +25,14 @@ public class Tester : Entity {
 	private int _id = 1;
 	private int stage;
 	Direction movementDirection;
+    float finishNodeDistance = 0f;
+    int delay;
+    bool OpenChildStage = true;
 
 	// Controller
 	PlayerController controller;
 	List<Camera> cameras;
 	Direction[] CanMove;
-    float finishNodeDistance = 0f;
-    int delay;
-    bool OpenChildStage = true;
 
 #region Unity
     void Start () {
@@ -274,12 +274,6 @@ public class Tester : Entity {
 	{
 		gameObject.transform.position = position + Vector3.up * _height;
 	}
-
-	private void ControlledMovement()
-	{
-		Vector3 moveInput = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-		Move(moveInput);
-	}
     
 	private void SelfMovement(Direction _direction)
 	{
@@ -301,12 +295,6 @@ public class Tester : Entity {
 	private void StopMovement(GameObject _gameObject)
 	{
 		controller.Move(_gameObject.transform.position * 0);
-	}
-
-	void Move(Vector3 moveInput)
-	{
-		Vector3 moveVel = moveInput.normalized * speed;
-		controller.Move(moveVel);
 	}
 #endregion
 
