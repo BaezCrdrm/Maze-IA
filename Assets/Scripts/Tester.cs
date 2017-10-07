@@ -164,11 +164,14 @@ public class Tester : Entity {
                         break;
 
                     case 6:
+                        _targetNode.Parent = Visited[Visited.Count - 1];
                         Visited.Add(_targetNode);
                         MoveGameObjectTo(EndingPoint.transform.position, height);
                         Debug.Log("Numero de nodos: " + Visited.Count.ToString());
                         Debug.Log("Finito");
                         training = false;
+                        SetRoute();
+                        Debug.Log("Ruta: " + Route.Count.ToString());                        
                         break;
                 }
             }
@@ -255,6 +258,7 @@ public class Tester : Entity {
     {
         Node _child = new Node(_id, CreateWaypoint(), _parent, _direction);
         UpdateNewNodeId();
+        //_child.SetChild(_child);
         open.Add(_child);
 
         _parent.UpdateNodeDirectionRestriction(_direction);
