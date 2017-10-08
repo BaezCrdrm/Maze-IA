@@ -114,7 +114,7 @@ public class Tester : Entity {
                         break;
 
                     case 3:
-                        if (finishNodeDistance > minObjectiveDistance)
+                        if (finishNodeDistance > minObjectiveDistance / 2)
                         {
                             if (OpenChildStage == true)
                             {
