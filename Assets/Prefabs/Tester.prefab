@@ -462,14 +462,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1b1d1cfdd510b3489bd28018e97462f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1
   movementDistance: 1
   height: 0.25
   StartingPoint: {fileID: 0}
   EndingPoint: {fileID: 0}
   minObjectiveDistance: 1.2
   training: 1
-  delayTime: 20
+  delayTime: 5
 --- !u!124 &124103837563185526
 Behaviour:
   m_ObjectHideFlags: 1
