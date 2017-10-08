@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent (typeof(PlayerController))]
 public class Tester : Entity {
 	// Editor configuration
-	public float speed = 1;
+	//public float speed = 1;
 	public float movementDistance = 1f;
 	public float height = 0.25f;
 
@@ -25,14 +25,14 @@ public class Tester : Entity {
 	private int _id = 1;
 	private int stage;
 	Direction movementDirection;
+    float finishNodeDistance = 0f;
+    int delay;
+    bool OpenChildStage = true;
 
 	// Controller
 	PlayerController controller;
 	List<Camera> cameras;
 	Direction[] CanMove;
-    float finishNodeDistance = 0f;
-    int delay;
-    bool OpenChildStage = true;
 
 #region Unity
     void Start () {
@@ -114,7 +114,7 @@ public class Tester : Entity {
                         break;
 
                     case 3:
-                        if (finishNodeDistance > minObjectiveDistance)
+                        if (finishNodeDistance > minObjectiveDistance / 2)
                         {
                             if (OpenChildStage == true)
                             {
@@ -164,11 +164,14 @@ public class Tester : Entity {
                         break;
 
                     case 6:
+                        _targetNode.Parent = Visited[Visited.Count - 1];
                         Visited.Add(_targetNode);
                         MoveGameObjectTo(EndingPoint.transform.position, height);
                         Debug.Log("Numero de nodos: " + Visited.Count.ToString());
                         Debug.Log("Finito");
                         training = false;
+                        SetRoute();
+                        Debug.Log("Ruta: " + Route.Count.ToString());                        
                         break;
                 }
             }
@@ -255,6 +258,7 @@ public class Tester : Entity {
     {
         Node _child = new Node(_id, CreateWaypoint(), _parent, _direction);
         UpdateNewNodeId();
+        //_child.SetChild(_child);
         open.Add(_child);
 
         _parent.UpdateNodeDirectionRestriction(_direction);
@@ -273,12 +277,6 @@ public class Tester : Entity {
     void MoveGameObjectTo(Vector3 position, float _height)
 	{
 		gameObject.transform.position = position + Vector3.up * _height;
-	}
-
-	private void ControlledMovement()
-	{
-		Vector3 moveInput = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-		Move(moveInput);
 	}
     
 	private void SelfMovement(Direction _direction)
@@ -301,12 +299,6 @@ public class Tester : Entity {
 	private void StopMovement(GameObject _gameObject)
 	{
 		controller.Move(_gameObject.transform.position * 0);
-	}
-
-	void Move(Vector3 moveInput)
-	{
-		Vector3 moveVel = moveInput.normalized * speed;
-		controller.Move(moveVel);
 	}
 #endregion
 

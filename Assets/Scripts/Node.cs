@@ -13,10 +13,9 @@ public class Node {
     /// Returns the int value of the node movement restriction.
     /// </summary>
     public int DirectionRestriction_Index
-    {        
-        get { return _directionRestrictionIndex;}
+    {
+        get { return _directionRestrictionIndex; }
     }
-    
 
 	public Node() { this.Children = new List<Node>(); }
     public Node(GameObject waypoint)
@@ -75,6 +74,20 @@ public class Node {
             if (this.Directions[i].Name == _direction.Name)
                 Directions[i].Value = value;
         }
+    }
+
+    public void SetChildren(List<Node> _nodes)
+    {
+        foreach (Node _child in _nodes)
+        {
+            SetChild(_child);
+        }
+    }
+
+    public void SetChild(Node _child)
+    {
+        if (_child.Parent.Children.Find(p => p.ID == _child.ID) == null)
+            this.Parent.Children.Add(_child);
     }
 
     private Direction GetOppositeDirection(Direction _direction)
