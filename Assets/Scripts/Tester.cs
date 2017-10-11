@@ -54,10 +54,11 @@ public class Tester : Entity {
                 /// 2. SetMovement
                 /// 3. Move
                 ///  Repeat
-
                 /// 4. Open nodes
                 /// 5. Visit nodes
-                /// 6. Stop
+                /// 6. Stop trainer
+                /// 7. Instantiate player
+                /// 8. End
                 switch (stage)
                 {
                     case 1:
@@ -169,9 +170,21 @@ public class Tester : Entity {
                         MoveGameObjectTo(EndingPoint.transform.position, height);
                         Debug.Log("Numero de nodos: " + Visited.Count.ToString());
                         Debug.Log("Finito");
-                        training = false;
+                        //training = false;
+                        stage = 7;
                         SetRoute();
                         Debug.Log("Ruta: " + Route.Count.ToString());                        
+                        break;
+
+                    case 7:
+                        InstantiatePlayer();
+                        //stage = 8;
+                        training = false;
+                        break;
+
+                    case 8:
+                        
+                        training = false;
                         break;
                 }
             }
@@ -307,21 +320,6 @@ public class Tester : Entity {
     {
         do { _id++; } while (Visited.Find(p => p.ID == _id) != null || 
             open.Find(p => p.ID == _id) != null);
-    }
-
-	/// <summary>
-	/// <para>Check the current distance between the gameObject 
-	/// position and the final node waypoint position.</para>
-	/// </summary>
-	/// <returns>True if the distance is larger than the control distance. 
-	/// False if the distance is shorter than the control distance</returns>
-    private bool CheckDistanceToTarget(float _distance)
-    {
-        if(_distance + minObjectiveDistance > 
-			Vector3.Distance(gameObject.transform.position,
-			_targetNode.Waypoint.transform.position))
-			return true;
-		else return false;
     }
 
 	private float GetDistance(Camera _camera)

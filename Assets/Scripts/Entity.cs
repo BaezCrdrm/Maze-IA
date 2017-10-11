@@ -3,28 +3,49 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Entity : MonoBehaviour {
-	protected List<Node> Visited;
+    protected List<Node> Visited;
+    public Rigidbody PlayerPrefab;
     private List<Node> _route;
     public List<Node> Route
-    { get { return this._route;} }
-    
+    { get { return this._route; } }
+    Rigidbody player;
+
     public void SetRoute()
     {
         this._route = new List<Node>();
-        Node tempNode = Visited[Visited.Count - 1].Parent;
-        while(true)
+        Node tempNode = Visited[Visited.Count - 1];
+        do
         {
             try
             {
-                if(tempNode != null)
+                if (tempNode != null)
                 {
                     this._route.Add(tempNode);
                     tempNode = tempNode.Parent;
-                } else
+                }
+                else
                     break;
             }
-            catch(System.Exception)
+            catch (System.Exception)
             { break; }
-        }
+        } while (true);
+        this._route.Reverse();
+    }
+
+    protected void InstantiatePlayer()
+    {
+        //Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, transform.position, transform.rotation);
+        //rocketClone.velocity = transform.forward * speed;
+
+        //// You can also acccess other components / scripts of the clone
+        //rocketClone.GetComponent<MyRocketScript>().DoSomething();
+
+        //player = (Rigidbody)Instantiate(PlayerPrefab, Visited[0].Waypoint.transform.position, Visited[0].Waypoint.transform.rotation);
+        //player.GetComponent<Player>().SetData(this._route);
+    }
+
+    protected void GoThroughSolution()
+    {
+        //player.GetComponent<Player>();
     }
 }
