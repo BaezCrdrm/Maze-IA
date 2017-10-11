@@ -34,18 +34,12 @@ public class Entity : MonoBehaviour {
 
     protected void InstantiatePlayer()
     {
-        //Rigidbody rocketClone = (Rigidbody)Instantiate(rocket, transform.position, transform.rotation);
-        //rocketClone.velocity = transform.forward * speed;
-
-        //// You can also acccess other components / scripts of the clone
-        //rocketClone.GetComponent<MyRocketScript>().DoSomething();
-
-        //player = (Rigidbody)Instantiate(PlayerPrefab, Visited[0].Waypoint.transform.position, Visited[0].Waypoint.transform.rotation);
-        //player.GetComponent<Player>().SetData(this._route);
+        player = (Rigidbody)Instantiate(PlayerPrefab, Visited[0].Waypoint.transform.position, Visited[0].Waypoint.transform.rotation);
+        player.GetComponent<Player>().SetData(this._route);
     }
 
     protected void GoThroughSolution()
     {
-        //player.GetComponent<Player>();
+        player.GetComponent<Player>();
     }
 }

@@ -178,12 +178,12 @@ public class Tester : Entity {
 
                     case 7:
                         InstantiatePlayer();
-                        //stage = 8;
-                        training = false;
+                        stage = 8;
+                        //training = false;
                         break;
 
                     case 8:
-                        
+                        gameObject.SetActive(false);
                         training = false;
                         break;
                 }

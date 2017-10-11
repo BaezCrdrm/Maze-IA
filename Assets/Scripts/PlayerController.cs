@@ -17,15 +17,21 @@ public class PlayerController : MonoBehaviour {
 		velocity = _velocity;
 	}
 
-	public void Move(float _x, float _z)
+    public void Move(Vector3 _velocity, GameObject _goTo)
+    {
+        this.gameObject.transform.LookAt(_goTo.transform.position);
+        velocity = _velocity;
+    }
+
+    public void Move(float _x, float _z)
 	{
 		x = _x;
 		z = _z;
 	}
 
-	public void FixedUpdate()
-	{
-		myRigidBody.MovePosition(myRigidBody.position + velocity * Time.fixedDeltaTime);
-		//myRigidBody.MovePosition(myRigidBody.position + new Vector3(x,0f,z) + velocity * Time.deltaTime);
-	}
+    public void FixedUpdate()
+    {
+        myRigidBody.MovePosition(myRigidBody.position + velocity * Time.fixedDeltaTime);
+        //myRigidBody.MovePosition(myRigidBody.position + new Vector3(x,0f,z) + velocity * Time.deltaTime);
+    }
 }
