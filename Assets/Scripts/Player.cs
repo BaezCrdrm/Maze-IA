@@ -49,8 +49,8 @@ public class Player : MonoBehaviour
                             // Calcular un nuevo vector en base a la posición del gameobject/waypoint actual
                             // con la del objetivo, de manera que programaticamente se decidan
                             // los valores del nuevo vector.
-                            controller.Move(getGameObjectVector(
-                                    GetMovingVector(gameObject.transform.position, (Visit[0].Waypoint.transform.position * speed))));
+                            controller.Move(GetGameObjectVector(
+                                    GetMovingVector(gameObject.transform.position, Visit[0].Waypoint.transform.position)) * speed);
                         }
                         else
                             stage = 3;
@@ -61,7 +61,7 @@ public class Player : MonoBehaviour
 
                 case 3:
                     controller.Move(gameObject.transform.position * 0);
-                    gameObject.transform.position = getGameObjectVector(Visit[0].Waypoint.transform.position);
+                    gameObject.transform.position = GetGameObjectVector(Visit[0].Waypoint.transform.position);
 
                     Visit.RemoveAt(0);
                     stage = 2;
@@ -94,11 +94,9 @@ public class Player : MonoBehaviour
         if (Vector3.Distance(_currentPosition, _targetPosition) > minNodeDistance)
             return true;
         else return false;
-
-        Debug.Log("Distance to obj: " + Vector3.Distance(_currentPosition, _targetPosition).ToString());
     }
 
-    private Vector3 getGameObjectVector(Vector3 _v3)
+    private Vector3 GetGameObjectVector(Vector3 _v3)
     {
         return _v3 + Vector3.up* gameObject.transform.localScale.y / 2;
     }
@@ -107,6 +105,6 @@ public class Player : MonoBehaviour
     {
         Vector3 tempVector3;
         tempVector3 = _targetPosition - _currentPosition;
-        return tempVector3;
+        return tempVector3.normalized;
     }
 }
