@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Node {
 	public int ID { get; set; }
-    public List<Node> Children { get; set; }
     public Node Parent { get; set; }
     public GameObject Waypoint;
     public Direction[] Directions;
@@ -17,18 +16,16 @@ public class Node {
         get { return _directionRestrictionIndex; }
     }
 
-	public Node() { this.Children = new List<Node>(); }
+	public Node() {  }
     public Node(GameObject waypoint)
     {
         this.Waypoint = waypoint;
-        this.Children = new List<Node>();
         initDirections();
     }
     public Node(int id, GameObject waypoint)
     {
         this.ID = id;
         this.Waypoint = waypoint;
-        this.Children = new List<Node>();
         initDirections();
     }
     public Node(int id, GameObject waypoint, Node parent)
@@ -36,7 +33,6 @@ public class Node {
         this.ID = id;
         this.Waypoint = waypoint;
         this.Parent = parent;
-        this.Children = new List<Node>();
         initDirections();
     }
 
@@ -45,7 +41,6 @@ public class Node {
         this.ID = id;
         this.Waypoint = waypoint;
         this.Parent = parent;
-        this.Children = new List<Node>();
         initDirections();
         for(int i = 0; i < this.Directions.Length; i++)
         {            
@@ -76,18 +71,29 @@ public class Node {
         }
     }
 
-    public void SetChildren(List<Node> _nodes)
+    /// <summary>
+    /// <para>Check if the selected node is on a node list.</para>
+    /// <param name="node">Node match</param>
+    /// </summary>	
+    /// <return>Bool. True in case the node is on the list.</return>
+    private bool CheckNodeOnList(List<Node> nodes, Node node)
     {
-        foreach (Node _child in _nodes)
-        {
-            SetChild(_child);
-        }
+        if (nodes.Find(p => p == node) == null)
+            return false;
+        else return true;
     }
 
-    public void SetChild(Node _child)
+    /// <summary>
+    /// <para>Check if the selected node is near a node on a list.</para>
+    /// <param name="node">Node match</param>
+    /// </summary>	
+    /// <return>Bool. True in case the node is on the list is near the new node.</return>
+    private bool CheckNodeOnList(List<Node> nodes, Vector3 _waypointPosition)
     {
-        if (_child.Parent.Children.Find(p => p.ID == _child.ID) == null)
-            this.Parent.Children.Add(_child);
+        // Terminar
+        if (nodes.Find(p => p.Waypoint.transform.position == _waypointPosition) == null)
+            return false;
+        else return true;
     }
 
     private Direction GetOppositeDirection(Direction _direction)
@@ -132,14 +138,22 @@ public class Node {
 
 public class Direction
 {
-    public string Name;
-    public bool Value;
+    public string Name { get; set; }
+    public bool Value { get; set; }
+    public float Distance { get; set; }
 
-    public Direction() { }
+    public Direction() { this.Distance = -1f; }
 
     public Direction(string _name, bool _value = false)
     {
-        Name = _name;
-        Value = _value;
+        this.Name = _name;
+        this.Value = _value;
+        this.Distance = -1f;
+    }
+
+    public Direction(string _name, float _distance)
+    {
+        this.Name = _name;
+        this.Distance = _distance;
     }
 }

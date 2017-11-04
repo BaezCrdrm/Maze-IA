@@ -28,6 +28,8 @@ public class Tester : Entity {
     float finishNodeDistance = 0f;
     int delay;
     bool OpenChildStage = true;
+    Direction[] recordedDistance;
+    bool drasticDistanceChange = false;
 
 	// Controller
 	PlayerController controller;
@@ -92,8 +94,13 @@ public class Tester : Entity {
 
                         if (movementDirection != null)
                         {
+                            // "Forward movement"
                             Camera _tempCam = GetCamera(movementDirection);
                             float _collisionDistance = GetDistance(_tempCam);
+
+                            // Collateral changes
+                            //drasticDistanceChange = FindNewCollateralWay(movementDirection, CanMove);
+
                             if (_collisionDistance > 0.51f)
                             {
                                 SelfMovement(movementDirection);
@@ -115,12 +122,20 @@ public class Tester : Entity {
                         break;
 
                     case 3:
+                        bool nearbyNodes = ScanForNearbyNodes(
+                                new Vector3(transform.position.x, 0, transform.position.z),
+                                0.51f);
+
                         if (finishNodeDistance > minObjectiveDistance / 2)
                         {
                             if (OpenChildStage == true)
                             {
-                                OpenChild(Visited[Visited.Count - 1], movementDirection);
-                                MoveGameObjectTo(Visited[Visited.Count - 1].Waypoint.transform.position, height);
+                                if (nearbyNodes == false)
+                                {
+                                    OpenChild(Visited[Visited.Count - 1], movementDirection);
+                                    MoveGameObjectTo(Visited[Visited.Count - 1].Waypoint.transform.position, height);
+                                    drasticDistanceChange = false;
+                                }
 
                                 stage = 4;
                                 delay = 0;
@@ -191,10 +206,10 @@ public class Tester : Entity {
         }
         else
             delay++;
-	}
-#endregion
+	}    
+    #endregion
 
-#region Init functions
+    #region Init functions
     private void Init()
 	{
 		stage = 1;
@@ -216,14 +231,14 @@ public class Tester : Entity {
     {
         Node _tempNode = new Node(new GameObject("temp"));
         CanMove = _tempNode.Directions;
-		_tempNode = null;
+        _tempNode.Waypoint.SetActive(false);
+        _tempNode = null;
     }
 #endregion
 
 #region Stage functions
     private Direction[] ScanFromPosition(Node _node)
 	{
-		//gameObject.transform.position = _node.Waypoint.transform.position;
         Direction[] _directions = _node.Directions;
 		foreach (Camera cam in cameras)
 		{
@@ -271,7 +286,6 @@ public class Tester : Entity {
     {
         Node _child = new Node(_id, CreateWaypoint(), _parent, _direction);
         UpdateNewNodeId();
-        //_child.SetChild(_child);
         open.Add(_child);
 
         _parent.UpdateNodeDirectionRestriction(_direction);
@@ -399,30 +413,29 @@ public class Tester : Entity {
         return j;
     }
 
-    /// <summary>
-    /// <para>Check if the selected node is on a node list.</para>
-    /// <param name="node">Node match</param>
-    /// </summary>	
-    /// <return>Bool. True in case the node is on the list.</return>
-    private bool CheckNodeOnList(List<Node> nodes, Node node)
-	{		
-		if (nodes.Find(p => p == node) == null)
-			return false;
-		else return true;
-	}
+    private bool FindNewCollateralWay(Direction movementDirection, Direction[] canMove)
+    {
 
-	/// <summary>
-	/// <para>Check if the selected node is near a node on a list.</para>
-	/// <param name="node">Node match</param>
-	/// </summary>	
-	/// <return>Bool. True in case the node is on the list is near the new node.</return>
-	private bool CheckNodeOnList(List<Node> nodes, Vector3 _waypointPosition, float _distance)
-	{		
-		// Terminar
-		if (nodes.Find(p => p.Waypoint.transform.position == _waypointPosition) == null)
-			return false;
-		else return true;
-	}
+        return false;
+    }
+
+    /// <summary> Scan for nearby waypoints</summary>
+    /// <param name="_currentPosition">Current gameObject position</param>
+    /// <param name="_minDistance"></param>
+    /// <returns>True if it finds a nearby waypoint</returns>
+    private bool ScanForNearbyNodes(Vector3 _currentPosition, float _minDistance)
+    {
+        GameObject[] _waypoints = GameObject.FindGameObjectsWithTag("Waypoint");
+        foreach (GameObject wp in _waypoints)
+        {
+            if(Vector3.Distance(wp.transform.position, _currentPosition) <= _minDistance)
+            {
+                _waypoints = null;
+                return true;
+            }
+        }
+        return false;
+    }
 
     private bool SetMovementDirection(int _restriction, int _direction)
     {
