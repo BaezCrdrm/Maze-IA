@@ -1398,6 +1398,17 @@ Prefab:
       propertyPath: EndingPoint
       value: 
       objectReference: {fileID: 1089497124}
+    - target: {fileID: 114848747577386646, guid: a45bb7f5e47af9c4b9e3399a266bbe9c,
+        type: 2}
+      propertyPath: PlayerPrefab
+      value: 
+      objectReference: {fileID: 54174456847596518, guid: 5e1f6793f8afcb446a7605f53ff1214e,
+        type: 2}
+    - target: {fileID: 114848747577386646, guid: a45bb7f5e47af9c4b9e3399a266bbe9c,
+        type: 2}
+      propertyPath: delayTime
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a45bb7f5e47af9c4b9e3399a266bbe9c, type: 2}
   m_IsPrefabParent: 0
