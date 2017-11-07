@@ -1,10 +1,12 @@
 fileFormatVersion: 2
 guid: 5448a6e36e39f764fa98b6fe23d99142
-timeCreated: 1506288716
+timeCreated: 1510082806
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - ObstaclePrefab: {fileID: 4394745469190748, guid: 3bb9e9a67df608e47b29aeeb8d141984,
+      type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
