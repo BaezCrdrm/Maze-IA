@@ -16,6 +16,10 @@ public class Player : MonoBehaviour
     // Controller
     PlayerController controller;
 
+    public AudioSource MovementAudioSource;
+    public AudioSource FinalAudioSource;
+    bool op = true;
+
     void Start () {
         controller = GetComponent<PlayerController>();
         stage = 1;
@@ -70,6 +74,15 @@ public class Player : MonoBehaviour
                 case 4:
                     controller.Move(gameObject.transform.position * 0);
 
+                    MovementAudioSource.transform.position = transform.position;
+                    MovementAudioSource.Stop();
+                    if(op==true)
+                    {
+                        FinalAudioSource.transform.position = transform.position;
+                        FinalAudioSource.Play();
+
+                        op = false;
+                    }
                     Debug.Log("Stop");
                     break;
             }
